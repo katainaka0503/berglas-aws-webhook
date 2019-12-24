@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: berglas-aws-webhook
+  labels:
+    app: berglas-aws-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: berglas-aws-webhook
+  template:
+    metadata:
+      labels:
+        app: berglas-aws-webhook
+    spec:
+      containers:
+        - name: berglas-aws-webhook
+          image: katainaka0503/berglas-aws-webhook:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - berglas-aws-webhook
+            - -port=443
+            - -tls-cert-file=/etc/webhook/certs/cert.pem
+            - -tls-key-file=/etc/webhook/certs/key.pem
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: berglas-aws-webhook
+            items:
+              - key: tls.crt
+                path: cert.pem
+              - key: tls.key
+                path: key.pem

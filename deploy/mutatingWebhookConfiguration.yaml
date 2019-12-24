@@ -1,0 +1,20 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: berglas-aws-webhook
+  annotations:
+    cert-manager.io/inject-ca-from: default/berglas-aws-webhook
+  labels:
+    app: berglas-aws-webhook
+webhooks:
+  - name: berglas-aws-webhook.default.svc
+    clientConfig:
+      service:
+        name: berglas-aws-webhook
+        namespace: default
+        path: "/mutate"
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]

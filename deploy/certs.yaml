@@ -1,0 +1,46 @@
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: self-signed
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: root-ca-certificate
+spec:
+  secretName: root-ca-certificate
+  duration: 43800h # 5y
+  issuerRef:
+    name: self-signed
+  commonName: "ca.example-webhook.cert-manager"
+  isCA: true
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Issuer
+metadata:
+  name: root-ca
+spec:
+  ca:
+    secretName: root-ca-certificate
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: berglas-aws-webhook
+spec:
+  isCA: false
+  dnsNames:
+    - berglas-aws-webhook
+    - berglas-aws-webhook.default
+    - berglas-aws-webhook.default.svc
+  keyAlgorithm: rsa
+  usages:
+    - "digital signature"
+    - "key encipherment"
+  secretName: berglas-aws-webhook
+  issuerRef:
+    name: root-ca
